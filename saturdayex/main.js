@@ -6,6 +6,7 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass';
 import {MusicalBall} from './util.js'
 
 let camera, scene, renderer, raycaster, pointer, controls, composer;
+let wall1, wall2, wall3, wall4;
 
 let lastTime = Date.now();
 let currentTime = Date.now();
@@ -70,17 +71,28 @@ function updateMusicBalls() {
 }
 
 function addBall(intersection) {
-  const ball = new MusicalBall(scene, ROOM_SIZE);
-  
+  const note = getNote(intersection.object);
+  const ball = new MusicalBall(scene, note, ROOM_SIZE);
 
   const velVector = (new THREE.Vector3(0,0,0)).sub(intersection.object.position).normalize();
-  console.log(velVector);
   ball.setVelocity(velVector);
 
   const position = intersection.point.add(velVector.clone().multiplyScalar(150));
   ball.setPosition(position);
 
   sceneBalls.push(ball);
+}
+
+function getNote(obj) {
+  if (obj === wall1) {
+    return "C2"
+  } else if (obj === wall2) {
+    return "D2"
+  } else if (obj === wall3) {
+    return "E2"
+  } else {
+    return "F2";
+  }
 }
 
 function setupDebug() {
@@ -127,24 +139,24 @@ function setupRoom() {
   const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
 
   const mat1 = new THREE.MeshPhongMaterial({ color: 0xFF5733, emissive: 0x072534, side: THREE.DoubleSide, flatShading: true });
-  const wall1 = new THREE.Mesh(geometry, mat1);
+  wall1 = new THREE.Mesh(geometry, mat1);
   wall1.position.z = -ROOM_SIZE / 2;
   room.add(wall1);
 
   const mat2 = new THREE.MeshPhongMaterial({ color: 0x3498DB, emissive: 0x072534, side: THREE.DoubleSide, flatShading: true });
-  const wall2 = new THREE.Mesh(geometry, mat2);
+  wall2 = new THREE.Mesh(geometry, mat2);
   wall2.position.x = ROOM_SIZE / 2;
   wall2.rotation.y = Math.PI / 2;
   room.add(wall2);
 
   const mat3 = new THREE.MeshPhongMaterial({ color: 0x2ECC71, emissive: 0x072534, side: THREE.DoubleSide, flatShading: true });
-  const wall3 = new THREE.Mesh(geometry, mat3);
+  wall3 = new THREE.Mesh(geometry, mat3);
   wall3.position.x = -ROOM_SIZE / 2;
   wall3.rotation.y = Math.PI / 2;
   room.add(wall3);
 
   const mat4 = new THREE.MeshPhongMaterial({ color: 0x9B59B6, emissive: 0x072534, side: THREE.DoubleSide, flatShading: true });
-  const wall4 = new THREE.Mesh(geometry, mat4);
+  wall4 = new THREE.Mesh(geometry, mat4);
   wall4.position.y = -ROOM_SIZE / 2;
   wall4.rotation.x = Math.PI / 2;
   room.add(wall4);
