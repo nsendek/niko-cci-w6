@@ -51,7 +51,6 @@ export class MusicalBall {
   }
 }
 
-
 function PlayRiff() {
   // monophonic
   const synth = new Tone.Synth().toDestination();

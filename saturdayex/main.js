@@ -42,7 +42,7 @@ function init() {
   setupRoom();
   setupEffects();
   setUpRaycasting();
-  setupDebug();
+  // setupDebug();
   setupLights();
 }
 
@@ -52,7 +52,9 @@ function render() {
   currentTime = Date.now();
 
   camera.lookAt(scene.position);
-  controls.update();
+  if (controls) {
+    controls.update();
+  }
   composer.render();
 
   updateMusicBalls();
