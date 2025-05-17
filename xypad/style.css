@@ -1,0 +1,28 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+  #xy-pad {
+    width: 80vw;
+    height: 80vh;
+    border: 2px solid #000;
+    background: rgba(255, 255, 255, 0.2);
+    position: relative;
+    cursor: crosshair;
+  }
+  #dot {
+    width: 20px;
+    height: 20px;
+    background: yellow;
+    border-radius: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  #dot.active {
+      background: red;
+  }

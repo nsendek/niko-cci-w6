@@ -1,0 +1,16 @@
+body {
+    margin: 0;
+    background: black;
+    color: white;
+}
+
+#tooltip {
+    position: absolute;
+    font-size: 1em;
+}
+
+main {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+}
