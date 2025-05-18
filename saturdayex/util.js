@@ -59,9 +59,9 @@ export class MusicalBall {
 
     // monophonic
     const synthBass = new Tone.Synth().toDestination();
-  
+
     synthBass.triggerAttackRelease(this.note, "8n", now);
-    
+
     Tone.getTransport().start();
   }
 }
