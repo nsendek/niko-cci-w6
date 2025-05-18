@@ -20,6 +20,7 @@ export class MusicalBall {
     // sphereGroup.add(new THREE.LineSegments(sphereGeometry, lineMaterial));
     this.sphereGroup.add(new THREE.Mesh(sphereGeometry, meshMaterial));
     scene.add(this.sphereGroup);
+    this.playNote();
   }
 
   setVelocity(vec) {
@@ -50,17 +51,17 @@ export class MusicalBall {
     this.vel = this.vel.multiplyScalar(-1);
     // this.setPosition(this.pos.add(this.vel.clone().multiplyScalar(2* SPHERE_RADIUS + 10)))
     // play a not here.
-    PlayRiff(this.note);
+    this.playNote();
   }
-}
 
-function PlayRiff(note) {
-  const now = Tone.now();
+  playNote() {
+    const now = Tone.now();
 
-  // monophonic
-  const synthBass = new Tone.Synth().toDestination();
-
-  synthBass.triggerAttackRelease(note, "8n", now);
+    // monophonic
+    const synthBass = new Tone.Synth().toDestination();
   
-  Tone.getTransport().start();
+    synthBass.triggerAttackRelease(this.note, "8n", now);
+    
+    Tone.getTransport().start();
+  }
 }
