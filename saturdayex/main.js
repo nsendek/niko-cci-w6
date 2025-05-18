@@ -1,9 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass';
-import { ShaderPass } from 'three/addons/postprocessing/ShaderPass';
-import {MusicalBall} from './util.js'
+import { MusicalBall } from './util.js'
 
 let camera, scene, renderer, raycaster, pointer, controls, composer;
 let wall1, wall2, wall3, wall4;
@@ -13,7 +10,6 @@ let currentTime = Date.now();
 
 const sceneLights = [];
 const sceneBalls = [];
-const SPHERE_RADIUS = 100;
 const ROOM_SIZE = 2500;
 
 main();
@@ -25,7 +21,7 @@ function main() {
 
 function init() {
   camera = new THREE.PerspectiveCamera(110, window.innerWidth / window.innerHeight, 1, 10000);
-  camera.position.z = ROOM_SIZE/2;
+  camera.position.z = ROOM_SIZE / 2;
 
   scene = new THREE.Scene();
 
@@ -41,7 +37,6 @@ function init() {
   window.addEventListener('click', onPointerClick)
 
   setupRoom();
-  setupEffects();
   setUpRaycasting();
   // setupDebug();
   setupLights();
@@ -56,10 +51,9 @@ function render() {
   if (controls) {
     controls.update();
   }
-  composer.render();
+  renderer.render(scene, camera);
 
   updateMusicBalls();
-
 
   lastTime = currentTime;
 }
@@ -74,7 +68,7 @@ function addBall(intersection) {
   const note = getNote(intersection.object);
   const ball = new MusicalBall(scene, note, ROOM_SIZE);
 
-  const velVector = (new THREE.Vector3(0,0,0)).sub(intersection.object.position).normalize();
+  const velVector = (new THREE.Vector3(0, 0, 0)).sub(intersection.object.position).normalize();
   ball.setVelocity(velVector);
 
   const position = intersection.point.add(velVector.clone().multiplyScalar(150));
@@ -107,16 +101,7 @@ function setUpRaycasting() {
   raycaster = new THREE.Raycaster();
   pointer = new THREE.Vector2();
 
-  window.addEventListener( 'pointermove', onPointerMove );
-}
-
-function setupEffects() {
-  composer = new EffectComposer(renderer);
-  composer.addPass(new RenderPass(scene, camera));
-  const fisheyePass = new ShaderPass(getDistortionShaderDefinition());
-  // composer.addPass(fisheyePass);
-  fisheyePass.renderToScreen = true;
-  setupDistortionEffect(fisheyePass);
+  window.addEventListener('pointermove', onPointerMove);
 }
 
 function setupLights() {
@@ -178,15 +163,15 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function onPointerMove( event ) {
+function onPointerMove(event) {
   // calculate pointer position in normalized device coordinates
   // (-1 to +1) for both components
-  pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-  pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
 }
 
 function onPointerClick() {
-  raycaster.setFromCamera( pointer, camera );
+  raycaster.setFromCamera(pointer, camera);
 
   const intersects = raycaster.intersectObjects(scene.children);
 
@@ -195,74 +180,4 @@ function onPointerClick() {
       addBall(intersect);
     }
   });
-}
-
-// Ripped off https://www.decarpentier.nl/downloads/lensdistortion-webgl/lensdistortion-webgl.html
-function getDistortionShaderDefinition() {
-  return {
-    uniforms: {
-      "tDiffuse": { type: "t", value: null },
-      "strength": { type: "f", value: 0 },
-      "height": { type: "f", value: 1 },
-      "aspectRatio": { type: "f", value: 1 },
-      "cylindricalRatio": { type: "f", value: 1 }
-    },
-
-    vertexShader: [
-      "uniform float strength;",          // s: 0 = perspective, 1 = stereographic
-      "uniform float height;",            // h: tan(verticalFOVInRadians / 2)
-      "uniform float aspectRatio;",       // a: screenWidth / screenHeight
-      "uniform float cylindricalRatio;",  // c: cylindrical distortion ratio. 1 = spherical
-
-      "varying vec3 vUV;",                // output to interpolate over screen
-      "varying vec2 vUVDot;",             // output to interpolate over screen
-
-      "void main() {",
-      "gl_Position = projectionMatrix * (modelViewMatrix * vec4(position, 1.0));",
-
-      "float scaledHeight = strength * height;",
-      "float cylAspectRatio = aspectRatio * cylindricalRatio;",
-      "float aspectDiagSq = aspectRatio * aspectRatio + 1.0;",
-      "float diagSq = scaledHeight * scaledHeight * aspectDiagSq;",
-      "vec2 signedUV = (2.0 * uv + vec2(-1.0, -1.0));",
-
-      "float z = 0.5 * sqrt(diagSq + 1.0) + 0.5;",
-      "float ny = (z - 1.0) / (cylAspectRatio * cylAspectRatio + 1.0);",
-
-      "vUVDot = sqrt(ny) * vec2(cylAspectRatio, 1.0) * signedUV;",
-      "vUV = vec3(0.5, 0.5, 1.0) * z + vec3(-0.5, -0.5, 0.0);",
-      "vUV.xy += uv;",
-      "}"
-    ].join("\n"),
-
-    fragmentShader: [
-      "uniform sampler2D tDiffuse;",      // sampler of rendered scene’s render target
-      "varying vec3 vUV;",                // interpolated vertex output data
-      "varying vec2 vUVDot;",             // interpolated vertex output data
-
-      "void main() {",
-      "vec3 uv = dot(vUVDot, vUVDot) * vec3(-0.5, -0.5, -1.0) + vUV;",
-      "gl_FragColor = texture2DProj(tDiffuse, uv);",
-      "}"
-    ].join("\n")
-
-  };
-}
-
-function setupDistortionEffect(effect) {
-  let guiParameters = {
-    horizontalFOV: 120,
-    strength: 1.5,
-    cylindricalRatio: 0.85,
-  };
-
-  let height = Math.tan(guiParameters.horizontalFOV * Math.PI / 180 / 2) / camera.aspect;
-  
-  camera.fov = Math.atan(height) * 2 * 180 / 3.1415926535;
-  camera.updateProjectionMatrix();
-
-  effect.uniforms["strength"].value = guiParameters.strength;
-  effect.uniforms["height"].value = height;
-  effect.uniforms["aspectRatio"].value = camera.aspect;
-  effect.uniforms["cylindricalRatio"].value = guiParameters.cylindricalRatio;  
 }
