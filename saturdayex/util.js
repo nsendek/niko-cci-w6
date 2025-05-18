@@ -4,7 +4,7 @@ const SPHERE_RADIUS = 100;
 
 export class MusicalBall {
   constructor(scene, note, roomSize) {
-    this.speed = 15;
+    this.speed = 50;
     this.pos = new THREE.Vector3(0, 0, 0);
     this.vel = new THREE.Vector3(0, 0, 0);
     this.roomSize = roomSize;
