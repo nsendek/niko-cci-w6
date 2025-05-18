@@ -79,13 +79,15 @@ function addBall(intersection) {
 
 function getNote(obj) {
   if (obj === wall1) {
-    return "C2"
+    return "C2";
   } else if (obj === wall2) {
-    return "D2"
+    return "D2";
   } else if (obj === wall3) {
-    return "E2"
-  } else {
+    return "E2";
+  } else if (obj === wall4) {
     return "F2";
+  } else {
+    return "G2";
   }
 }
 

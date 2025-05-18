@@ -4,7 +4,6 @@ const SPHERE_RADIUS = 100;
 
 export class MusicalBall {
   constructor(scene, note, roomSize) {
-    this.sphereGroup = new THREE.Group();
     this.speed = 15;
     this.pos = new THREE.Vector3(0, 0, 0);
     this.vel = new THREE.Vector3(0, 0, 0);
@@ -18,8 +17,9 @@ export class MusicalBall {
     const meshMaterial = new THREE.MeshPhongMaterial({ color: 0x666666, emissive: 0x072534, side: THREE.DoubleSide, flatShading: true });
 
     // sphereGroup.add(new THREE.LineSegments(sphereGeometry, lineMaterial));
-    this.sphereGroup.add(new THREE.Mesh(sphereGeometry, meshMaterial));
-    scene.add(this.sphereGroup);
+    this.object = new THREE.Mesh(sphereGeometry, meshMaterial);
+
+    scene.add(this.object);
 
     this.synth = new Tone.Synth().toDestination();
 
@@ -32,9 +32,9 @@ export class MusicalBall {
 
   setPosition(vec) {
     this.pos = vec;
-    this.sphereGroup.position.x = vec.x;
-    this.sphereGroup.position.y = vec.y;
-    this.sphereGroup.position.z = vec.z;
+    this.object.position.x = vec.x;
+    this.object.position.y = vec.y;
+    this.object.position.z = vec.z;
   }
 
   update() {
@@ -45,7 +45,7 @@ export class MusicalBall {
       this.reflect();
     }
 
-    const start = this.sphereGroup.position.clone();
+    const start = this.object.position.clone();
     const end = start.add(this.vel.clone().multiplyScalar(this.speed));
     this.setPosition(end);
   }
