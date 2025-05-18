@@ -20,6 +20,9 @@ export class MusicalBall {
     // sphereGroup.add(new THREE.LineSegments(sphereGeometry, lineMaterial));
     this.sphereGroup.add(new THREE.Mesh(sphereGeometry, meshMaterial));
     scene.add(this.sphereGroup);
+
+    this.synth = new Tone.Synth().toDestination();
+
     this.playNote();
   }
 
@@ -57,10 +60,7 @@ export class MusicalBall {
   playNote() {
     const now = Tone.now();
 
-    // monophonic
-    const synthBass = new Tone.Synth().toDestination();
-
-    synthBass.triggerAttackRelease(this.note, "8n", now);
+    this.synth.triggerAttackRelease(this.note, "8n", now);
 
     Tone.getTransport().start();
   }
