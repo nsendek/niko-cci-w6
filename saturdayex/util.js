@@ -10,7 +10,6 @@ export class MusicalBall {
     this.roomSize = roomSize;
     this.note = note;
 
-
     const sphereGeometry = new THREE.SphereGeometry(SPHERE_RADIUS, 64, 64);
 
     const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
@@ -42,7 +41,7 @@ export class MusicalBall {
     const axisDistance = this.pos.dot(this.vel);
 
     if (axisDistance >= boundaryVal) {
-      this.reflect();
+      this.bounce();
     }
 
     const start = this.object.position.clone();
@@ -50,18 +49,14 @@ export class MusicalBall {
     this.setPosition(end);
   }
 
-  reflect() {
+  bounce() {
     this.vel = this.vel.multiplyScalar(-1);
-    // this.setPosition(this.pos.add(this.vel.clone().multiplyScalar(2* SPHERE_RADIUS + 10)))
-    // play a not here.
     this.playNote();
   }
 
   playNote() {
     const now = Tone.now();
-
     this.synth.triggerAttackRelease(this.note, "8n", now);
-
     Tone.getTransport().start();
   }
 }
