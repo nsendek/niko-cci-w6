@@ -3,15 +3,18 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { MusicalBall } from './util.js'
 
 let camera, scene, renderer, raycaster, pointer, controls, composer;
-let wall1, wall2, wall3, wall4;
 
 let lastTime = Date.now();
 let currentTime = Date.now();
 
 const sceneLights = [];
 const sceneBalls = [];
+const sceneWalls = [];
 const ROOM_SIZE = 2500;
-
+const SCENE_STATE = {
+  paused: false
+};
+ 
 main();
 
 function main() {
@@ -34,7 +37,8 @@ function init() {
   document.body.style.touchAction = 'none';
 
   window.addEventListener('resize', onWindowResize);
-  window.addEventListener('click', onPointerClick)
+  window.addEventListener('click', onPointerClick);
+  window.addEventListener('keypress', onKeyPressed);
 
   setupRoom();
   setUpRaycasting();
@@ -53,7 +57,9 @@ function render() {
   }
   renderer.render(scene, camera);
 
-  updateMusicBalls();
+  if (!SCENE_STATE.paused) {
+    updateMusicBalls();
+  }
 
   lastTime = currentTime;
 }
@@ -77,14 +83,25 @@ function addBall(intersection) {
   sceneBalls.push(ball);
 }
 
+function removeBall(intersect) {
+  const ballIndex = sceneBalls.findIndex((value) => intersect.object === value.getObject());
+
+  if (ballIndex == -1) {
+    return;
+  }
+  sceneBalls.splice(ballIndex, 1);
+  intersect.object.removeFromParent();
+}
+
 function getNote(obj) {
-  if (obj === wall1) {
+  const wallIndex = sceneWalls.findIndex((value) => obj === value);
+  if (wallIndex == 0) {
     return "C2";
-  } else if (obj === wall2) {
+  } else if (wallIndex == 1) {
     return "D2";
-  } else if (obj === wall3) {
+  } else if (wallIndex == 2) {
     return "E2";
-  } else if (obj === wall4) {
+  } else if (wallIndex == 3) {
     return "F2";
   } else {
     return "G2";
@@ -123,29 +140,32 @@ function setupLights() {
 function setupRoom() {
   const room = new THREE.Group();
   const geometry = new THREE.PlaneGeometry(ROOM_SIZE, ROOM_SIZE);
-  const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
 
   const mat1 = new THREE.MeshPhongMaterial({ color: 0xFF5733, emissive: 0x072534, side: THREE.DoubleSide, flatShading: true });
-  wall1 = new THREE.Mesh(geometry, mat1);
+  const wall1 = new THREE.Mesh(geometry, mat1);
   wall1.position.z = -ROOM_SIZE / 2;
+  sceneWalls.push(wall1);
   room.add(wall1);
 
   const mat2 = new THREE.MeshPhongMaterial({ color: 0x3498DB, emissive: 0x072534, side: THREE.DoubleSide, flatShading: true });
-  wall2 = new THREE.Mesh(geometry, mat2);
+  const wall2 = new THREE.Mesh(geometry, mat2);
   wall2.position.x = ROOM_SIZE / 2;
   wall2.rotation.y = Math.PI / 2;
+  sceneWalls.push(wall2);
   room.add(wall2);
 
   const mat3 = new THREE.MeshPhongMaterial({ color: 0x2ECC71, emissive: 0x072534, side: THREE.DoubleSide, flatShading: true });
-  wall3 = new THREE.Mesh(geometry, mat3);
+  const wall3 = new THREE.Mesh(geometry, mat3);
   wall3.position.x = -ROOM_SIZE / 2;
   wall3.rotation.y = Math.PI / 2;
+  sceneWalls.push(wall3);
   room.add(wall3);
 
   const mat4 = new THREE.MeshPhongMaterial({ color: 0x9B59B6, emissive: 0x072534, side: THREE.DoubleSide, flatShading: true });
-  wall4 = new THREE.Mesh(geometry, mat4);
+  const wall4 = new THREE.Mesh(geometry, mat4);
   wall4.position.y = -ROOM_SIZE / 2;
   wall4.rotation.x = Math.PI / 2;
+  sceneWalls.push(wall4);
   room.add(wall4);
 
 
@@ -153,6 +173,7 @@ function setupRoom() {
   const wall5 = new THREE.Mesh(geometry, mat5);
   wall5.position.y = ROOM_SIZE / 2;
   wall5.rotation.x = Math.PI / 2;
+  sceneWalls.push(wall5);
   room.add(wall5);
 
   scene.add(room);
@@ -175,11 +196,20 @@ function onPointerMove(event) {
 function onPointerClick() {
   raycaster.setFromCamera(pointer, camera);
 
-  const intersects = raycaster.intersectObjects(scene.children);
+  const children = SCENE_STATE.paused ? sceneBalls.map(b => b.getObject()) : sceneWalls;
+  const intersects = raycaster.intersectObjects(children);
 
   intersects.forEach(intersect => {
-    if (intersect.object.geometry instanceof THREE.PlaneGeometry) {
+    if (SCENE_STATE.paused) {
+      removeBall(intersect);
+    } else {
       addBall(intersect);
     }
   });
+}
+
+function onKeyPressed(event) {
+  if (event.keyCode == 32) {
+    SCENE_STATE.paused = !SCENE_STATE.paused;
+  }
 }
