@@ -4,9 +4,9 @@ const SPHERE_RADIUS = 100;
 
 export class MusicalBall {
   constructor(scene, note, roomSize) {
-    this.speed = 20;
+    this.speed = roomSize; // 100% of room length traveled per second.
     this.pos = new THREE.Vector3(0, 0, 0);
-    this.vel = new THREE.Vector3(0, 0, 0);
+    this.direction = new THREE.Vector3(0, 0, 0);
     this.roomSize = roomSize;
     this.note = note;
 
@@ -17,11 +17,9 @@ export class MusicalBall {
 
     // sphereGroup.add(new THREE.LineSegments(sphereGeometry, lineMaterial));
     this.object = new THREE.Mesh(sphereGeometry, meshMaterial);
-
     scene.add(this.object);
 
     this.synth = new Tone.Synth().toDestination();
-
     this.playNote();
   }
 
@@ -29,8 +27,8 @@ export class MusicalBall {
     return this.object;
   }
 
-  setVelocity(vec) {
-    this.vel = vec;
+  setDirection(vec) {
+    this.direction = vec;
   }
 
   setPosition(vec) {
@@ -40,21 +38,23 @@ export class MusicalBall {
     this.object.position.z = vec.z;
   }
 
-  update() {
+  update(delta) {
     const boundaryVal = this.roomSize / 2 - SPHERE_RADIUS / 2; // prevents clipping bug for now :(
-    const axisDistance = this.pos.dot(this.vel);
+    const axisDistance = this.pos.dot(this.direction);
 
     if (axisDistance >= boundaryVal) {
       this.bounce();
     }
 
+    const offset = this.direction.clone();
+    offset.multiplyScalar(this.speed);
+    offset.multiplyScalar(delta / 1000);
     const start = this.object.position.clone();
-    const end = start.add(this.vel.clone().multiplyScalar(this.speed));
-    this.setPosition(end);
+    this.setPosition(start.add(offset));
   }
 
   bounce() {
-    this.vel = this.vel.multiplyScalar(-1);
+    this.direction.multiplyScalar(-1);
     this.playNote();
   }
 

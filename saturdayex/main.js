@@ -14,7 +14,7 @@ const ROOM_SIZE = 2500;
 const SCENE_STATE = {
   paused: false
 };
- 
+
 main();
 
 function main() {
@@ -66,7 +66,7 @@ function render() {
 
 function updateMusicBalls() {
   sceneBalls.forEach(ball => {
-    ball.update();
+    ball.update(currentTime - lastTime);
   });
 }
 
@@ -75,7 +75,7 @@ function addBall(intersection) {
   const ball = new MusicalBall(scene, note, ROOM_SIZE);
 
   const velVector = (new THREE.Vector3(0, 0, 0)).sub(intersection.object.position).normalize();
-  ball.setVelocity(velVector);
+  ball.setDirection(velVector);
 
   const position = intersection.point.add(velVector.clone().multiplyScalar(150));
   ball.setPosition(position);
