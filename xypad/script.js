@@ -24,9 +24,9 @@ sequence.start(0);
 
 const synthBass = new Tone.Synth().toDestination();
 
-// const loop = new Tone.Loop((time) => {
-//     synthBass.triggerAttackRelease("C0", "8n", time);
-// }, "4n").start(0);
+const loop = new Tone.Loop((time) => {
+    synthBass.triggerAttackRelease("C0", "8n", time);
+}, "4n").start(0);
 
 
 const effect1 = new Tone.Chebyshev(50).toDestination();
@@ -35,16 +35,16 @@ const effect1 = new Tone.Chebyshev(50).toDestination();
 const volumeGain = new Tone.Gain(1).toDestination();
 
 // Create an LFO to control the volume
-// const volumeLFO = new Tone.LFO({
-//   type: "square",
-//   frequency: 1, // Slow oscillation
-//   min: 0,       // Fully silent
-//   max: 1,       // Full volume
-//   amplitude: 1, // Full-range modulation
-// }).start();
+const volumeLFO = new Tone.LFO({
+  type: "square",
+  frequency: 1, // Slow oscillation
+  min: 0,       // Fully silent
+  max: 1,       // Full volume
+  amplitude: 1, // Full-range modulation
+}).start();
 
 // Connect the LFO to the gain's volume
-// volumeLFO.connect(volumeGain.gain);
+volumeLFO.connect(volumeGain.gain);
 
 // Chain the effects
 synth.chain(effect1, volumeGain);

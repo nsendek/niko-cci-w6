@@ -13,7 +13,7 @@ export class MusicalBall {
     const sphereGeometry = new THREE.SphereGeometry(SPHERE_RADIUS, 64, 64);
 
     const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
-    const meshMaterial = new THREE.MeshPhongMaterial({ color: 0x666666, emissive: 0x072534, side: THREE.DoubleSide, flatShading: true });
+    const meshMaterial = new THREE.MeshStandardMaterial({ roughness: 0, color: 0x666666,  metalness: 0.9, flatShading: false });
 
     // sphereGroup.add(new THREE.LineSegments(sphereGeometry, lineMaterial));
     this.object = new THREE.Mesh(sphereGeometry, meshMaterial);
@@ -60,7 +60,6 @@ export class MusicalBall {
 
   playNote() {
     const now = Tone.now();
-    this.synth.triggerAttackRelease(this.note, "8n", now);
-    Tone.getTransport().start();
+    this.synth.triggerAttackRelease(this.note, "16n", now);
   }
 }
