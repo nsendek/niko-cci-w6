@@ -33,9 +33,9 @@ function init() {
 	// renderer.shadowMap.enabled = true;
 	// renderer.toneMapping = THREE.CineonToneMapping;
 	// renderer.shadowMap.type = THREE.PCFShoftShadowMap;
-		const environment = new RoomEnvironment();
-		const pmremGenerator = new THREE.PMREMGenerator( renderer );
-		scene.environment = pmremGenerator.fromScene( environment ).texture;
+	const environment = new RoomEnvironment();
+	const pmremGenerator = new THREE.PMREMGenerator( renderer );
+	scene.environment = pmremGenerator.fromScene( environment ).texture;
     
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -65,18 +65,18 @@ function render() {
   }
   renderer.render(scene, camera);
 
-  // if (!SCENE_STATE.paused) {
-  //   updateMusicBalls();
-  // }
+  if (!SCENE_STATE.paused) {
+    updateMusicBalls();
+  }
 
   lastTime = currentTime;
 }
 
-// function updateMusicBalls() {
-//   sceneBalls.forEach(ball => {
-//     ball.update(currentTime - lastTime);
-//   });
-// }
+function updateMusicBalls() {
+  sceneBalls.forEach(ball => {
+    ball.update(currentTime - lastTime);
+  });
+}
 
 function addBall(intersection) {
   const note = getNote(intersection.object);
